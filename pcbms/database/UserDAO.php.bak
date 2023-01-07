@@ -1,0 +1,33 @@
+<?php
+	include "../database/ConnectionDAO.php";
+	
+	class UserDAO extends ConnectionDAO{
+		function login($username, $password){
+			$qry = "SELECT `user_id`, `username`, `password`, `user_type` FROM `users` WHERE username=? and password=?";
+			try{
+				$this->openConnection();
+				
+				$stmt = $this->dbh->prepare($qry);
+				$stmt->bindParam(1, $username);
+				$stmt->bindParam(2, $password);
+				$stmt->execute();
+				
+				$ctr = 0;
+				while($res = $stmt->fetch(PDO::FETCH_ASSOC)){
+					$arrRows[$ctr] = $res;
+					$ctr++;
+				}
+				
+				if($ctr > 0){
+					return $arrRows;
+				}else{
+					return array(0 => "Empty");
+				}
+			}catch(Exception $e){
+				echo($e->message());
+				return array(0 => "Empty");
+			}
+		}
+	}
+	
+?>

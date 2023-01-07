@@ -1,0 +1,69 @@
+<?php
+	include "../../database/ConnectionDAO.php";
+	
+	class ProductDeliveryDAO extends ConnectionDAO{
+		
+		
+		function getUser($userID){
+			$qry = "SELECT * FROM `users` WHERE `user_id` = $userID";
+			return $this->selectQuery($qry);
+		}
+	
+		
+		function getDelivery($delivery_code){
+			$qry = "SELECT * FROM `product_delivery` WHERE `delivery_code` = $delivery_code";
+			return $this->selectQuery($qry);
+		}
+		
+		function deleteDelivery($id){
+			$this->deleteTable("product_delivery", $id);
+		}
+		
+		function getDeliveries($part){
+			if($part == ""){
+				$clause = "company_name LIKE '%'";
+			}else{
+				$clause = "company_name LIKE '%$part%'";
+			}
+			$qry = "SELECT * FROM `product_delivery` INNER JOIN `suppliers` ON product_delivery.supplier_id = suppliers.supplier_id WHERE $clause";
+			return $this->selectQuery($qry);
+		}
+	
+		
+		function insertDelivery($company, $contact, $gender, $address, $phone){
+			$qry = "INSERT INTO `product_delivery` (`company_name`, `contact_person`, `gender`, `address`, `contact_no`) VALUES (?, ?, ?, ?, ?)";
+			try{
+				$this->openConnection();
+				$stmt = $this->dbh->prepare($qry);
+				$stmt->bindParam(1,$company);
+				$stmt->bindParam(2,$contact);
+				$stmt->bindParam(3,$gender);
+				$stmt->bindParam(4,$address);
+				$stmt->bindParam(5,$phone);
+				$stmt->execute();
+			}catch(Exception $e){
+				$e->getMessage();
+			}
+			return 1;
+		}
+		function editDelivery($id, $company, $contact, $gender, $address, $phone){
+			$qry = "UPDATE `product_delivery` SET `company_name` = ?, `contact_person` = ?, `gender` = ?, `address` = ?, `contact_no` = ? WHERE `product_delivery`.`delivery_code` = ?";
+			try{
+				$this->openConnection();
+				$stmt = $this->dbh->prepare($qry);
+				$stmt->bindParam(1,$company);
+				$stmt->bindParam(2,$contact);
+				$stmt->bindParam(3,$gender);
+				$stmt->bindParam(4,$address);
+				$stmt->bindParam(5,$phone);
+				$stmt->bindParam(6,$id);
+				$stmt->execute();
+			}catch(Exception $e){
+				$e->getMessage();
+				return 0;
+			}
+			return 1;
+		}
+		
+	}
+?>

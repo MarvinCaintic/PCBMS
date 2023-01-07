@@ -1,0 +1,51 @@
+<?php
+	session_start();
+	
+	ini_set('max_execution_time', 0);
+	
+	if(!isset($_SESSION["user_id"])){
+		session_destroy();
+		header("Location: ../../");
+	}
+	
+	include "../../database/SupplierDAO.php";
+	$dbs = new SupplierDAO();
+	
+	
+	if(!isset($_POST['COMPANY'])){
+		return;
+	}
+	$action = $_POST['ACTION'];
+	$company = $_POST['COMPANY'];
+	$contact = $_POST['CONTACT']; 
+	$gender  = $_POST['GENDER'];
+	$address = $_POST['ADDRESS'];
+	$phone 	 = $_POST['PHONE'];
+	if($action == "save only"){		
+		$dbs->insertSupplier($company, $contact, $gender, $address, $phone);
+		$suppliers = $dbs->getSuppliers("");
+		
+		foreach($suppliers as $row){
+			if($row == "Empty"){
+				echo "<option value = '0'> No supplier yet </option>";
+				break;
+			}
+			$id = $row["supplier_id"];
+			echo "<option value = '$id'>".$row['company_name'].", ".$row['contact_person']."</option>";
+		}
+	}else if($action == "save edited"){
+		echo "2?";
+		$id = $_POST['ID'];
+		$dbs->editSupplier($id, $company, $contact, $gender, $address, $phone);
+		$suppliers = $dbs->getSuppliers("");
+		
+		foreach($suppliers as $row){
+			if($row == "Empty"){
+				echo "<option value = '0'> No supplier yet </option>";
+				break;
+			}
+			$id = $row["supplier_id"];
+			echo "<option value = '$id'>".$row['company_name'].", ".$row['contact_person']."</option>";
+		}
+	}
+?>
